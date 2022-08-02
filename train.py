@@ -52,44 +52,17 @@ class CharDataset(Dataset):
     
 
 # Create tokenizer, dataset and config
-ds = CharDataset('noisy_alphabet.txt', 1024)
-cfg = Config(
-    vocab_size=ds.tokenizer.vocab_size, 
-    block_size=BLOCK_SIZE,
-    n_layer=12
-)
+
 
 # Instantiate model
-device = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
-print(f'Using {device} as default rank_0')
-model = GPT(cfg)
-print(f'Initialised model with {cfg.n_layer} layers')
+
 
 # Put on GPUs
-print('Putting on GPU...')
-model = model.to(device)
-print('done!')
+
 
 
 # Create optimizer
-optim = AdamW(
-    model.parameters(), 
-    lr=LR, 
-    betas=(0.9, 0.95)
-)
-print('Created optimizer')
+
 
 # Training loop
-for epoch in range(EPOCHS):
-    dl = DataLoader(
-        ds,
-        batch_size=BATCH_SIZE,
-    )
-    print('Created dataloader')
-    for idx, batch in enumerate(dl):
-        batch = {k:v.to(device) for k,v in batch.items()}
-        logits, loss = model(batch['x'], targets=batch['y'])
-        print(f'Loss for batch {idx}: {loss.item()}')
-        loss.backward()
-        optim.step()
-        optim.zero_grad()
+
