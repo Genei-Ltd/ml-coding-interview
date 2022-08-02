@@ -56,7 +56,7 @@ ds = CharDataset('noisy_alphabet.txt', 1024)
 cfg = Config(
     vocab_size=ds.tokenizer.vocab_size, 
     block_size=BLOCK_SIZE,
-    n_layer=36
+    n_layer=12
 )
 
 # Instantiate model
@@ -66,15 +66,8 @@ model = GPT(cfg)
 print(f'Initialised model with {cfg.n_layer} layers')
 
 # Put on GPUs
-n_gpus_for_blocks = NGPUS - 1
-blocks_per_gpu = math.ceil(cfg.n_layer / n_gpus_for_blocks)
-print(f'Allocating {cfg.n_layer} blocks between {n_gpus_for_blocks} gpus, so using {blocks_per_gpu} per GPU...')
-
-block_idx_to_device = {
-    k:torch.device(f'cuda:{int(k//blocks_per_gpu)}') for k in range(cfg.n_layer)
-}
-
-model = model.put_on_different_gpus(device, block_idx_to_device)
+print('Putting on GPU...')
+model = model.to(device)
 print('done!')
 
 

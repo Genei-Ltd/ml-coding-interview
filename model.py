@@ -110,24 +110,6 @@ class GPT(nn.Module):
 
         self.apply(self._init_weights)
 
-    def put_on_different_gpus(self, rank_0_device, block_idx_to_device):
-        # ! We add this function to put everything bar blocks on default
-        self.rank_0_device = rank_0_device
-        self.block_idx_to_device = block_idx_to_device
-
-        # Use mapping to put blocks on different gpus
-        for k,v in block_idx_to_device.items():
-            self.transformer.h[k].to(v)
-
-        # Everything else goes on rank_0
-        self.transformer.wte.to(rank_0_device)
-        self.transformer.wpe.to(rank_0_device)
-        self.transformer.drop.to(rank_0_device)
-        self.transformer.ln_f.to(rank_0_device)
-        self.lm_head.to(rank_0_device)
-
-        return self
-
     def _init_weights(self, module):
         if isinstance(module, nn.Linear):
             torch.nn.init.normal_(module.weight, mean=0.0, std=0.02)
@@ -152,10 +134,8 @@ class GPT(nn.Module):
         
         # forward the gpt model itself
         x = self.transformer.drop(x)
-        for idx, block in enumerate(self.transformer.h):
-            x = x.to(self.block_idx_to_device[idx]) # ! Do moving around here
+        for block in self.transformer.h:
             x = block(x)
-        x = x.to(device)        # ! finally put back on original device
         x = self.transformer.ln_f(x)
         logits = self.lm_head(x)
 
