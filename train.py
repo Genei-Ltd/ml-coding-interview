@@ -49,20 +49,4 @@ class CharDataset(Dataset):
 
     def __len__(self):
         return (len(self.text)-1) // self.block_size
-    
-
-# Create tokenizer, dataset and config
-
-
-# Instantiate model
-
-
-# Put on GPUs
-
-
-
-# Create optimizer
-
-
-# Training loop
 
